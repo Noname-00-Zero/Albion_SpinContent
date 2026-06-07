@@ -398,28 +398,42 @@ OBSIDIAN_CSS = """
         margin-top: 2px;
     }
 
-    /* ---- Challenge box ---- */
+    /* ---- Challenge box (high-contrast: gold border + red glow) ---- */
     .am-challenge {
-        background: linear-gradient(160deg, #2a1414 0%, #170b0b 100%);
-        border: 2px solid #c0392b;
+        background: linear-gradient(160deg, #2e1710 0%, #170b0b 100%);
+        border: 3px solid #e8b04b;
         border-radius: 16px;
-        padding: 22px;
+        padding: 24px;
         text-align: center;
-        box-shadow: 0 0 26px rgba(192,57,43,0.35);
+        box-shadow:
+            0 0 0 1px rgba(192,57,43,0.6),
+            0 0 34px rgba(232,176,75,0.45),
+            inset 0 0 24px rgba(192,57,43,0.25);
         margin-top: 6px;
+        animation: am-pulse 2.4s ease-in-out infinite;
+    }
+    @keyframes am-pulse {
+        0%, 100% { box-shadow: 0 0 0 1px rgba(192,57,43,0.6),
+                               0 0 22px rgba(232,176,75,0.35),
+                               inset 0 0 20px rgba(192,57,43,0.2); }
+        50%      { box-shadow: 0 0 0 1px rgba(192,57,43,0.8),
+                               0 0 40px rgba(232,176,75,0.6),
+                               inset 0 0 26px rgba(192,57,43,0.3); }
     }
     .am-challenge-label {
-        color: #ff7b72;
+        color: #f5d76e;
         text-transform: uppercase;
-        letter-spacing: 2px;
-        font-size: 0.95rem;
+        letter-spacing: 3px;
+        font-size: 1.0rem;
+        font-weight: 800;
         margin-bottom: 8px;
     }
     .am-challenge-text {
         color: #ffffff;
-        font-size: 1.9rem;
-        font-weight: 800;
+        font-size: 2.0rem;
+        font-weight: 900;
         line-height: 1.25;
+        text-shadow: 0 2px 12px rgba(0,0,0,0.6);
     }
 
     /* ---- Ad placeholder ---- */
@@ -475,23 +489,31 @@ OBSIDIAN_CSS = """
         color: #f5d76e;
     }
 
-    /* ---- Ko-fi ---- */
+    /* ---- Ko-fi (high-visibility CTA) ---- */
     .am-kofi {
         display: block;
         text-align: center;
         margin: 6px auto 0 auto;
-        max-width: 440px;
+        max-width: 460px;
         white-space: nowrap;
-        background: linear-gradient(90deg, #ff5e5b, #d63d3a);
+        background: linear-gradient(90deg, #ff8a3d, #ff5e5b 50%, #d63d3a);
         color: #ffffff !important;
-        font-size: 1.2rem;
-        font-weight: 800;
+        font-size: 1.35rem;
+        font-weight: 900;
+        letter-spacing: 1px;
         text-decoration: none;
-        padding: 14px 18px;
-        border-radius: 12px;
-        box-shadow: 0 6px 20px rgba(214,61,58,0.4);
+        padding: 16px 18px;
+        border-radius: 14px;
+        border: 2px solid rgba(255,255,255,0.18);
+        box-shadow: 0 8px 26px rgba(214,61,58,0.5);
+        animation: am-kofi-pulse 2s ease-in-out infinite;
+        transition: transform 0.1s ease, filter 0.15s ease;
     }
-    .am-kofi:hover {filter: brightness(1.08);}
+    @keyframes am-kofi-pulse {
+        0%, 100% { box-shadow: 0 8px 26px rgba(214,61,58,0.45); }
+        50%      { box-shadow: 0 8px 36px rgba(255,138,61,0.7); }
+    }
+    .am-kofi:hover {filter: brightness(1.1); transform: translateY(-2px);}
 </style>
 """
 
@@ -682,7 +704,7 @@ def main() -> None:
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown(
         f'<a class="am-kofi" href="{KOFI_URL}" target="_blank" rel="noopener">'
-        "☕ Support the Dev: Buy me a coffee (Ko-fi)</a>",
+        "☕ Support the Chaos</a>",
         unsafe_allow_html=True,
     )
 
