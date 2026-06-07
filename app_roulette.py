@@ -28,6 +28,16 @@ import streamlit.components.v1 as components
 # CONFIG
 # ---------------------------------------------------------------------------
 KOFI_URL = "https://ko-fi.com/albioncode"                # <- your Ko-fi page
+APP_URL = "https://albionspincontent-2tjxlovqc7rl7xn2j9cjnm.streamlit.app"
+OG_TITLE = "Albion Master - Build Randomizer & Challenge Generator"
+OG_DESCRIPTION = (
+    "The ultimate streamer-friendly build randomizer for Albion Online."
+)
+# Public image for link previews (Discord / Reddit / Twitter).
+OG_IMAGE = (
+    "https://raw.githubusercontent.com/Noname-00-Zero/Albion_SpinContent/"
+    "main/assets/og.png"
+)
 CARD_IMG_SIZE = 96                                        # cards display at 92px — 96 is enough
 SPIN_IMG_SIZE = 72                                        # small icons for the spin animation only
 SPIN_DELAY = 2.4                                          # suspense seconds
@@ -815,10 +825,31 @@ def render_credit_panel() -> None:
                       on_click=reset_credits)
 
 
+def inject_meta_tags() -> None:
+    """Open Graph + Twitter Card tags for rich link previews when sharing."""
+    st.markdown(
+        f"""
+        <meta property="og:type"        content="website">
+        <meta property="og:url"         content="{APP_URL}">
+        <meta property="og:title"      content="{OG_TITLE}">
+        <meta property="og:description" content="{OG_DESCRIPTION}">
+        <meta property="og:image"      content="{OG_IMAGE}">
+        <meta property="og:image:width"  content="1200">
+        <meta property="og:image:height" content="630">
+        <meta name="twitter:card"        content="summary_large_image">
+        <meta name="twitter:title"       content="{OG_TITLE}">
+        <meta name="twitter:description" content="{OG_DESCRIPTION}">
+        <meta name="twitter:image"       content="{OG_IMAGE}">
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 # ---------------------------------------------------------------------------
 # APP BODY
 # ---------------------------------------------------------------------------
 def main() -> None:
+    inject_meta_tags()
     st.markdown(
         f'<link rel="preconnect" href="{RENDER_CDN}" crossorigin>'
         f'<link rel="dns-prefetch" href="{RENDER_CDN}">',
