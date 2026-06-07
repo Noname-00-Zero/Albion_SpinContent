@@ -28,15 +28,16 @@ import streamlit.components.v1 as components
 # CONFIG
 # ---------------------------------------------------------------------------
 KOFI_URL = "https://ko-fi.com/albioncode"                # <- your Ko-fi page
-APP_URL = "https://albionspincontent-2tjxlovqc7rl7xn2j9cjnm.streamlit.app"
-OG_TITLE = "Albion Master - Build Randomizer & Challenge Generator"
+APP_URL = "https://albionspincontent.streamlit.app"
+OG_TITLE = "Albion Master | Build Randomizer & Challenge Generator"
 OG_DESCRIPTION = (
-    "The ultimate streamer-friendly build randomizer for Albion Online."
+    "Level 1 MVP: Streamer-ready build chaos for Albion Online. Generate "
+    "builds, take on challenges, and stream like a pro."
 )
 # Public image for link previews (Discord / Reddit / Twitter).
 OG_IMAGE = (
     "https://raw.githubusercontent.com/Noname-00-Zero/Albion_SpinContent/"
-    "main/assets/og.png"
+    "main/og.png"
 )
 CARD_IMG_SIZE = 96                                        # cards display at 92px — 96 is enough
 SPIN_IMG_SIZE = 72                                        # small icons for the spin animation only
