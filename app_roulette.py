@@ -427,14 +427,23 @@ OBSIDIAN_CSS = """
     }
     .am-title {
         font-family: 'Cinzel', serif;
-        font-size: 3.3rem;
+        font-size: clamp(1.7rem, 6vw, 3.2rem);
         font-weight: 900;
-        letter-spacing: 5px;
+        letter-spacing: clamp(2px, 1vw, 5px);
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4em;
         background: linear-gradient(90deg, #f7e08c, #e8b04b 45%, #b9772a);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         text-shadow: 0 0 38px rgba(232,176,75,0.35);
         margin: 0;
+    }
+    .am-title .am-sword {
+        -webkit-text-fill-color: initial;
+        filter: drop-shadow(0 0 10px rgba(232,176,75,0.4));
     }
     .am-sub {
         text-align: center;
@@ -736,16 +745,17 @@ def copy_to_clipboard_button(text: str, label: str) -> None:
     <style>
       .am-copy-btn {{
         width: 100%;
-        background: linear-gradient(90deg, #6c5ce7, #4834d4);
-        color: #fff; border: none; border-radius: 12px;
-        font-size: 1.15rem; font-weight: 800; letter-spacing: 0.5px;
+        background: linear-gradient(90deg, #f0bd57, #c98f2e);
+        color: #1a1206; border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 12px;
+        font-size: 1.15rem; font-weight: 900; letter-spacing: 0.5px;
         padding: 14px 0; cursor: pointer;
-        box-shadow: 0 6px 20px rgba(72,52,212,0.4);
+        box-shadow: 0 6px 20px rgba(232,176,75,0.35);
         font-family: "Source Sans Pro", sans-serif;
-        transition: filter 0.15s ease;
+        transition: filter 0.15s ease, transform 0.1s ease;
       }}
-      .am-copy-btn:hover {{ filter: brightness(1.1); }}
-      .am-copy-btn.copied {{ background: linear-gradient(90deg, #00b894, #019a7c); }}
+      .am-copy-btn:hover {{ filter: brightness(1.08); transform: translateY(-1px); }}
+      .am-copy-btn.copied {{ background: linear-gradient(90deg, #00b894, #019a7c); color: #fff; }}
     </style>
     <button class="am-copy-btn" id="amCopy" onclick="amCopy()">{label}</button>
     <script>
@@ -903,7 +913,11 @@ def main() -> None:
 
     st.markdown(
         '<div class="am-banner">'
-        '<div class="am-title">⚔️ ALBION ROULETTE ⚔️</div>'
+        '<div class="am-title">'
+        '<span class="am-sword">⚔️</span>'
+        '<span>ALBION ROULETTE</span>'
+        '<span class="am-sword">⚔️</span>'
+        "</div>"
         '<div class="am-sub">Streamer Build Roulette &amp; Challenge Generator</div>'
         "</div>",
         unsafe_allow_html=True,
