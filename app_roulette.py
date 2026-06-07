@@ -29,8 +29,10 @@ import streamlit.components.v1 as components
 # ---------------------------------------------------------------------------
 KOFI_URL = "https://ko-fi.com/albioncode"                # <- your Ko-fi page
 ADSENSE_CLIENT = "ca-pub-0000000000000000"               # <- your AdSense id
-RENDER_SIZE = 180                                         # px image size
+CARD_IMG_SIZE = 96                                        # cards display at 92px — 96 is enough
+SPIN_IMG_SIZE = 72                                        # small icons for the spin animation only
 SPIN_DELAY = 2.4                                          # suspense seconds
+RENDER_CDN = "https://render.albiononline.com"
 
 # Tier system — each item rolls a random tier (T4-T8) for extra chaos.
 TIERS = ["T4", "T5", "T6", "T7", "T8"]
@@ -69,12 +71,26 @@ st.set_page_config(
 )
 
 
-def item_image_url(base_id: str, tier: str = "T4") -> str:
+def item_image_url(base_id: str, tier: str = "T4", size: int = CARD_IMG_SIZE) -> str:
     """Build the Albion Render API URL for a tier-prefixed item id."""
-    return (
-        f"https://render.albiononline.com/v1/item/{tier}_{base_id}.png"
-        f"?size={RENDER_SIZE}&quality=1"
-    )
+    return f"{RENDER_CDN}/v1/item/{tier}_{base_id}.png?size={size}&quality=0"
+
+
+def loadout_image_urls(lo: Loadout) -> list[str]:
+    """All image URLs for a loadout — used to preload during the SPIN delay."""
+    urls: list[str] = []
+    slots = [
+        ("main", lo.main_hand),
+        ("off", lo.off_hand),
+        ("head", lo.head),
+        ("chest", lo.chest),
+        ("shoes", lo.shoes),
+        ("cape", lo.cape),
+    ]
+    for slot, item in slots:
+        if item and item.item_id:
+            urls.append(item_image_url(item.item_id, lo.tiers.get(slot, "T4")))
+    return urls
 
 
 def roll_tier() -> str:
@@ -448,12 +464,20 @@ OBSIDIAN_CSS = """
         letter-spacing: 1.6px;
         margin-bottom: 6px;
     }
+    .am-img-wrap {
+        width: 92px; height: 92px;
+        display: flex; align-items: center; justify-content: center;
+        background: #12141b; border-radius: 10px;
+    }
     .am-img {
         width: 92px;
         height: 92px;
         object-fit: contain;
         filter: drop-shadow(0 6px 10px rgba(0,0,0,0.5));
+        opacity: 0;
+        transition: opacity 0.25s ease;
     }
+    .am-img.loaded { opacity: 1; }
     .am-img-empty {
         width: 92px; height: 92px;
         display: flex; align-items: center; justify-content: center;
@@ -614,12 +638,16 @@ def item_card(label: str, item: Item | None, tier: str = "T4",
         visual = f'<div class="am-img-empty">{placeholder}</div>'
         name = item.name if item else "None"
     else:
+        url = item_image_url(item.item_id, tier)
+        err_fallback = f'<div class=&quot;am-img-empty&quot;>{placeholder}</div>'
         visual = (
-            f'<img class="am-img" src="{item_image_url(item.item_id, tier)}" '
-            f'alt="{item.name}" loading="lazy" '
-            f"onerror=\"this.onerror=null;this.outerHTML='"
-            f'<div class=&quot;am-img-empty&quot;>{placeholder}</div>'
-            "';\">"
+            '<div class="am-img-wrap">'
+            f'<img class="am-img" src="{url}" alt="{item.name}" '
+            'decoding="async" fetchpriority="high" '
+            "onload=\"this.classList.add('loaded')\" "
+            f"onerror=\"this.onerror=null;this.parentElement.outerHTML='{err_fallback}';\""
+            ">"
+            "</div>"
         )
         name = item.name
         color = TIER_COLORS.get(tier, "#9aa0b0")
@@ -696,21 +724,24 @@ def copy_to_clipboard_button(text: str, label: str) -> None:
     components.html(html, height=64)
 
 
-def spin_overlay_html(message: str) -> str:
-    """A large, centered spinning roulette graphic shown during the SPIN delay.
+def spin_overlay_html(message: str, preload_urls: list[str] | None = None) -> str:
+    """Spinning roulette shown during the SPIN delay.
 
-    Cycles through real Albion weapon icons so the reveal feels like a slot
-    machine. CSS keyframes animate client-side while Python sleeps server-side.
+    Preloads the actual build images in the background while the wheel spins,
+    so cards appear instantly when the overlay clears.
     """
-    icons = ["2H_LONGBOW", "MAIN_FIRESTAFF", "2H_AXE", "MAIN_SWORD",
-             "2H_CURSEDSTAFF", "MAIN_RAPIER_MORGANA", "2H_CROSSBOW", "MAIN_MACE"]
-    tier = random.choice(TIERS)
+    # Only 4 small T4 icons for the slot-machine flash — keeps spin phase light.
+    icons = ["2H_LONGBOW", "MAIN_FIRESTAFF", "2H_AXE", "MAIN_SWORD"]
     imgs = "".join(
-        f'<img src="{item_image_url(i, tier)}" class="am-spin-icon" '
-        f'style="animation-delay:{n * 0.28:.2f}s;">'
+        f'<img src="{item_image_url(i, "T4", SPIN_IMG_SIZE)}" class="am-spin-icon" '
+        f'decoding="async" style="animation-delay:{n * 0.35:.2f}s;">'
         for n, i in enumerate(icons)
     )
+    preload_html = "".join(
+        f'<link rel="preload" as="image" href="{u}">' for u in (preload_urls or [])
+    )
     return f"""
+    {preload_html}
     <style>
       .am-spin-wrap {{
         text-align:center; padding: 18px 0 6px 0;
@@ -800,6 +831,11 @@ def render_credit_panel() -> None:
 # APP BODY
 # ---------------------------------------------------------------------------
 def main() -> None:
+    st.markdown(
+        f'<link rel="preconnect" href="{RENDER_CDN}" crossorigin>'
+        f'<link rel="dns-prefetch" href="{RENDER_CDN}">',
+        unsafe_allow_html=True,
+    )
     st.markdown(OBSIDIAN_CSS, unsafe_allow_html=True)
 
     st.markdown(
@@ -821,12 +857,17 @@ def main() -> None:
     spin_clicked = st.button("🎰  SPIN THE BUILD", key="spin_btn", type="primary",
                              use_container_width=True)
     if spin_clicked:
+        # Roll first (hidden), then preload images during the spin animation.
+        pending = spin()
         overlay = st.empty()
-        overlay.markdown(spin_overlay_html(random.choice(RNG_LINES)),
-                         unsafe_allow_html=True)
+        overlay.markdown(
+            spin_overlay_html(random.choice(RNG_LINES),
+                              preload_urls=loadout_image_urls(pending)),
+            unsafe_allow_html=True,
+        )
         time.sleep(SPIN_DELAY)
         overlay.empty()
-        st.session_state.loadout = spin()
+        st.session_state.loadout = pending
         st.session_state.spins += 1
 
     # ---- Streamer Control Panel: Donation Credits gate the rerolls ----
