@@ -28,7 +28,6 @@ import streamlit.components.v1 as components
 # CONFIG
 # ---------------------------------------------------------------------------
 KOFI_URL = "https://ko-fi.com/albioncode"                # <- your Ko-fi page
-ADSENSE_CLIENT = "ca-pub-0000000000000000"               # <- your AdSense id
 CARD_IMG_SIZE = 96                                        # cards display at 92px — 96 is enough
 SPIN_IMG_SIZE = 72                                        # small icons for the spin animation only
 SPIN_DELAY = 2.4                                          # suspense seconds
@@ -535,17 +534,6 @@ OBSIDIAN_CSS = """
         text-shadow: 0 2px 12px rgba(0,0,0,0.6);
     }
 
-    /* ---- Ad placeholder ---- */
-    .am-ad {
-        border: 1px dashed #3a3e4a;
-        border-radius: 12px;
-        padding: 22px;
-        text-align: center;
-        color: #565b6a;
-        font-size: 0.9rem;
-        letter-spacing: 1px;
-    }
-
     /* ---- SPIN button (primary) ---- */
     div.stButton > button[kind="primary"] {
         width: 100%;
@@ -960,13 +948,6 @@ def main() -> None:
     st.markdown(
         f'<a class="am-kofi" href="{KOFI_URL}" target="_blank" rel="noopener">'
         "☕ Support the Chaos</a>",
-        unsafe_allow_html=True,
-    )
-
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown(
-        '<div class="am-ad">[ Google AdSense Placeholder ]<br>'
-        f"client: {ADSENSE_CLIENT} &nbsp;|&nbsp; slot: responsive banner</div>",
         unsafe_allow_html=True,
     )
 
