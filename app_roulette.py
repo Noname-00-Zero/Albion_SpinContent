@@ -781,13 +781,14 @@ def has_rare_tier(lo: Loadout) -> bool:
     return any(tier in ("T7", "T8") for tier in lo.tiers.values())
 
 
-def sound_fx_html(kind: str = "spin", delay_ms: int = 0) -> str:
+def sound_fx_html(kind: str = "spin", delay_ms: int = 0, nonce: str = "") -> str:
     """Tiny Web Audio synth. No external audio files, no copyright risk."""
     return f"""
     <script>
       (function() {{
         const kind = {json.dumps(kind)};
         const delay = {delay_ms};
+        const nonce = {json.dumps(nonce)};
 
         function tone(ctx, start, freq, duration, type, gainValue) {{
           const osc = ctx.createOscillator();
@@ -857,7 +858,10 @@ def sound_fx_html(kind: str = "spin", delay_ms: int = 0) -> str:
 
 def play_sound_fx(kind: str, delay_ms: int = 0) -> None:
     """Render an invisible component that plays a synthesized sound effect."""
-    components.html(sound_fx_html(kind, delay_ms), height=0)
+    # The nonce forces Streamlit to remount/re-execute the JS on every click.
+    # Without this, identical component HTML can play only once per session.
+    nonce = f"{time.time_ns()}-{random.random()}"
+    components.html(sound_fx_html(kind, delay_ms, nonce), height=1)
 
 
 def spin_overlay_html(message: str, preload_urls: list[str] | None = None) -> str:
