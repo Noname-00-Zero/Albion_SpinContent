@@ -30,13 +30,14 @@ def base(name: str) -> str:
 
 
 def collect() -> list[tuple[str, str]]:
+    # Item ids are tier-less now; prepend T4 to query the gameinfo API.
     pairs: list[tuple[str, str]] = []
     for w in a.MAIN_HANDS:
-        pairs.append((w.name, w.item_id))
+        pairs.append((w.name, f"T4_{w.item_id}"))
     for grp in (a.OFF_HANDS, a.ARMOR_HEAD, a.ARMOR_CHEST, a.ARMOR_SHOES, a.CAPES):
         for it in grp:
             if it.item_id:  # skip "No Cape" (empty id)
-                pairs.append((it.name, it.item_id))
+                pairs.append((it.name, f"T4_{it.item_id}"))
     return pairs
 
 
