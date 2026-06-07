@@ -483,10 +483,7 @@ OBSIDIAN_CSS = """
         height: 92px;
         object-fit: contain;
         filter: drop-shadow(0 6px 10px rgba(0,0,0,0.5));
-        opacity: 0;
-        transition: opacity 0.25s ease;
     }
-    .am-img.loaded { opacity: 1; }
     .am-img-empty {
         width: 92px; height: 92px;
         display: flex; align-items: center; justify-content: center;
@@ -642,7 +639,6 @@ def item_card(label: str, item: Item | None, tier: str = "T4",
             '<div class="am-img-wrap">'
             f'<img class="am-img" src="{url}" alt="{item.name}" '
             'decoding="async" fetchpriority="high" '
-            "onload=\"this.classList.add('loaded')\" "
             f"onerror=\"this.onerror=null;this.parentElement.outerHTML='{err_fallback}';\""
             ">"
             "</div>"
