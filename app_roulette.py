@@ -404,11 +404,15 @@ def reroll_slot(slot: str) -> None:
 # STYLING (Task 3) — Obsidian-Dark, OBS-friendly
 # ---------------------------------------------------------------------------
 OBSIDIAN_CSS = """
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&display=swap" rel="stylesheet">
 <style>
     .stApp {
         background:
-            radial-gradient(900px 500px at 50% -10%, #1d2030 0%, rgba(10,11,14,0) 60%),
-            linear-gradient(180deg, #0a0b0e 0%, #050507 100%);
+            radial-gradient(1000px 560px at 50% -12%, #20160a 0%, rgba(8,8,10,0) 58%),
+            radial-gradient(700px 400px at 50% 0%, rgba(232,176,75,0.06) 0%, rgba(0,0,0,0) 60%),
+            linear-gradient(180deg, #050506 0%, #020203 100%);
         color: #e8eaf0;
     }
     #MainMenu, footer, header {visibility: hidden;}
@@ -422,38 +426,52 @@ OBSIDIAN_CSS = """
         border-bottom: 1px solid #2a2e3a;
     }
     .am-title {
-        font-size: 3.2rem;
+        font-family: 'Cinzel', serif;
+        font-size: 3.3rem;
         font-weight: 900;
-        letter-spacing: 4px;
+        letter-spacing: 5px;
         background: linear-gradient(90deg, #f7e08c, #e8b04b 45%, #b9772a);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        text-shadow: 0 0 32px rgba(232,176,75,0.25);
+        text-shadow: 0 0 38px rgba(232,176,75,0.35);
         margin: 0;
     }
     .am-sub {
         text-align: center;
-        color: #8b90a0;
+        color: #9a8f76;
         font-size: 1.0rem;
-        letter-spacing: 1px;
-        margin-top: 2px;
+        letter-spacing: 2px;
+        margin-top: 4px;
+        text-transform: uppercase;
     }
 
-    /* ---- Item card (image over name) ---- */
+    /* ---- Item card (inventory-slot style) ---- */
     .am-card {
         position: relative;
-        background: linear-gradient(160deg, #1a1d26 0%, #11131a 100%);
-        border: 1px solid #2a2e3a;
+        background:
+            radial-gradient(120px 90px at 50% 28%, rgba(232,176,75,0.06), rgba(0,0,0,0) 70%),
+            linear-gradient(160deg, #15161d 0%, #0b0c11 100%);
+        border: 1px solid #2c2a22;
         border-radius: 16px;
         padding: 14px 10px 12px 10px;
         margin-bottom: 12px;
         text-align: center;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+        box-shadow:
+            0 8px 24px rgba(0,0,0,0.55),
+            inset 0 1px 0 rgba(232,176,75,0.06);
         min-height: 196px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: flex-start;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+    }
+    .am-card:hover {
+        border-color: rgba(232,176,75,0.5);
+        box-shadow:
+            0 10px 30px rgba(0,0,0,0.6),
+            0 0 18px rgba(232,176,75,0.18);
+        transform: translateY(-2px);
     }
     .am-tier-badge {
         position: absolute;
@@ -468,25 +486,52 @@ OBSIDIAN_CSS = """
         box-shadow: 0 2px 8px rgba(0,0,0,0.4);
     }
     .am-slot-label {
-        color: #7d8295;
-        font-size: 0.78rem;
+        font-family: 'Cinzel', serif;
+        color: #b9772a;
+        font-size: 0.74rem;
         text-transform: uppercase;
-        letter-spacing: 1.6px;
+        letter-spacing: 2px;
+        font-weight: 700;
         margin-bottom: 6px;
     }
     .am-img-wrap {
-        width: 92px; height: 92px;
+        position: relative;
+        width: 96px; height: 96px;
         display: flex; align-items: center; justify-content: center;
-        background: #12141b; border-radius: 10px;
+        background:
+            radial-gradient(circle at 50% 40%, #1b1c24 0%, #0a0b0f 75%);
+        border: 1px solid #3a3526;
+        border-radius: 12px;
+        box-shadow:
+            inset 0 0 14px rgba(0,0,0,0.7),
+            0 0 0 1px rgba(232,176,75,0.08);
+        overflow: hidden;
+    }
+    /* skeleton shimmer behind the image until it paints over the frame */
+    .am-img-wrap::before {
+        content: "";
+        position: absolute; inset: 0;
+        background: linear-gradient(100deg,
+            rgba(255,255,255,0) 30%,
+            rgba(232,176,75,0.10) 50%,
+            rgba(255,255,255,0) 70%);
+        background-size: 220% 100%;
+        animation: am-shimmer 1.3s linear infinite;
+    }
+    @keyframes am-shimmer {
+        0% { background-position: 160% 0; }
+        100% { background-position: -60% 0; }
     }
     .am-img {
-        width: 92px;
-        height: 92px;
+        position: relative;
+        z-index: 1;
+        width: 88px;
+        height: 88px;
         object-fit: contain;
-        filter: drop-shadow(0 6px 10px rgba(0,0,0,0.5));
+        filter: drop-shadow(0 6px 10px rgba(0,0,0,0.6));
     }
     .am-img-empty {
-        width: 92px; height: 92px;
+        width: 96px; height: 96px;
         display: flex; align-items: center; justify-content: center;
         font-size: 2.4rem; color: #3a3e4a;
     }
@@ -495,7 +540,7 @@ OBSIDIAN_CSS = """
         font-size: 1.05rem;
         font-weight: 800;
         line-height: 1.15;
-        margin-top: 8px;
+        margin-top: 10px;
     }
     .am-item-meta {
         color: #f5d76e;
@@ -527,11 +572,12 @@ OBSIDIAN_CSS = """
                                inset 0 0 26px rgba(192,57,43,0.3); }
     }
     .am-challenge-label {
+        font-family: 'Cinzel', serif;
         color: #f5d76e;
         text-transform: uppercase;
-        letter-spacing: 3px;
-        font-size: 1.0rem;
-        font-weight: 800;
+        letter-spacing: 4px;
+        font-size: 1.05rem;
+        font-weight: 700;
         margin-bottom: 8px;
     }
     .am-challenge-text {
@@ -646,8 +692,9 @@ def item_card(label: str, item: Item | None, tier: str = "T4",
         )
         name = item.name
         color = TIER_COLORS.get(tier, "#9aa0b0")
+        glow = f"box-shadow:0 0 12px {color};" if tier in ("T7", "T8") else ""
         badge_html = (
-            f'<div class="am-tier-badge" style="background:{color};">{tier}</div>'
+            f'<div class="am-tier-badge" style="background:{color};{glow}">{tier}</div>'
         )
     meta_html = f'<div class="am-item-meta">{meta}</div>' if meta else ""
     return (
