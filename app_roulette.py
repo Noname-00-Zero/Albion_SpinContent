@@ -776,6 +776,90 @@ def copy_to_clipboard_button(text: str, label: str) -> None:
     components.html(html, height=64)
 
 
+def has_rare_tier(lo: Loadout) -> bool:
+    """Treat T7/T8 rolls as rare enough to deserve a stronger reveal sound."""
+    return any(tier in ("T7", "T8") for tier in lo.tiers.values())
+
+
+def sound_fx_html(kind: str = "spin", delay_ms: int = 0) -> str:
+    """Tiny Web Audio synth. No external audio files, no copyright risk."""
+    return f"""
+    <script>
+      (function() {{
+        const kind = {json.dumps(kind)};
+        const delay = {delay_ms};
+
+        function tone(ctx, start, freq, duration, type, gainValue) {{
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, start);
+          gain.gain.setValueAtTime(0.0001, start);
+          gain.gain.exponentialRampToValueAtTime(gainValue, start + 0.015);
+          gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+          osc.connect(gain).connect(ctx.destination);
+          osc.start(start);
+          osc.stop(start + duration + 0.03);
+        }}
+
+        function noiseSweep(ctx, start, duration) {{
+          const bufferSize = Math.max(1, Math.floor(ctx.sampleRate * duration));
+          const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {{
+            const fade = 1 - (i / bufferSize);
+            data[i] = (Math.random() * 2 - 1) * fade * 0.25;
+          }}
+          const src = ctx.createBufferSource();
+          const filter = ctx.createBiquadFilter();
+          const gain = ctx.createGain();
+          src.buffer = buffer;
+          filter.type = "bandpass";
+          filter.frequency.setValueAtTime(650, start);
+          filter.frequency.exponentialRampToValueAtTime(2200, start + duration);
+          gain.gain.setValueAtTime(0.14, start);
+          gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+          src.connect(filter).connect(gain).connect(ctx.destination);
+          src.start(start);
+          src.stop(start + duration + 0.02);
+        }}
+
+        function play() {{
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (!AudioContext) return;
+          const ctx = new AudioContext();
+          const now = ctx.currentTime + 0.02;
+
+          if (kind === "spin") {{
+            noiseSweep(ctx, now, 0.75);
+            [220, 277, 330, 392, 466, 554].forEach((freq, i) => {{
+              tone(ctx, now + i * 0.095, freq, 0.08, "square", 0.045);
+            }});
+          }} else if (kind === "rare") {{
+            tone(ctx, now, 392, 0.16, "triangle", 0.065);
+            tone(ctx, now + 0.12, 587, 0.18, "triangle", 0.075);
+            tone(ctx, now + 0.26, 880, 0.36, "triangle", 0.085);
+            tone(ctx, now + 0.31, 1320, 0.28, "sine", 0.035);
+          }} else {{
+            tone(ctx, now, 523, 0.12, "triangle", 0.06);
+            tone(ctx, now + 0.11, 659, 0.16, "triangle", 0.065);
+            tone(ctx, now + 0.24, 784, 0.25, "triangle", 0.07);
+          }}
+
+          setTimeout(() => ctx.close(), 1400);
+        }}
+
+        setTimeout(play, delay);
+      }})();
+    </script>
+    """
+
+
+def play_sound_fx(kind: str, delay_ms: int = 0) -> None:
+    """Render an invisible component that plays a synthesized sound effect."""
+    components.html(sound_fx_html(kind, delay_ms), height=0)
+
+
 def spin_overlay_html(message: str, preload_urls: list[str] | None = None) -> str:
     """Spinning roulette shown during the SPIN delay.
 
@@ -929,6 +1013,12 @@ def main() -> None:
         st.session_state.spins = 0
     if "credits" not in st.session_state:
         st.session_state.credits = 0
+    if "sound_enabled" not in st.session_state:
+        st.session_state.sound_enabled = True
+
+    _, sound_col = st.columns([3, 1])
+    with sound_col:
+        st.toggle("🔊 Sound FX", key="sound_enabled")
 
     # ---- SPIN with big center spinning animation ----
     spin_clicked = st.button("🎰  SPIN THE BUILD", key="spin_btn", type="primary",
@@ -936,6 +1026,10 @@ def main() -> None:
     if spin_clicked:
         # Roll first (hidden), then preload images during the spin animation.
         pending = spin()
+        if st.session_state.sound_enabled:
+            play_sound_fx("spin")
+            play_sound_fx("rare" if has_rare_tier(pending) else "reveal",
+                          delay_ms=int(SPIN_DELAY * 1000))
         overlay = st.empty()
         overlay.markdown(
             spin_overlay_html(random.choice(RNG_LINES),
