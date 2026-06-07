@@ -28,7 +28,7 @@ import streamlit.components.v1 as components
 # CONFIG
 # ---------------------------------------------------------------------------
 KOFI_URL = "https://ko-fi.com/albioncode"                # <- your Ko-fi page
-APP_URL = "https://albionspincontent.streamlit.app"
+APP_URL = "https://albionspincontent-2tjxlovqc7rl7xn2j9cjnm.streamlit.app"
 OG_TITLE = "Albion Master | Build Randomizer & Challenge Generator"
 OG_DESCRIPTION = (
     "Level 1 MVP: Streamer-ready build chaos for Albion Online. Generate "
