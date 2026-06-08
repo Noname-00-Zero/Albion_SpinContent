@@ -28,7 +28,7 @@ import streamlit.components.v1 as components
 # CONFIG
 # ---------------------------------------------------------------------------
 KOFI_URL = "https://ko-fi.com/albioncode"                # <- your Ko-fi page
-APP_URL = "https://albionspincontent-2tjxlovqc7rl7xn2j9cjnm.streamlit.app"
+APP_URL = "https://albionspincontent-2tjxlovqc7rl7xn2j9cjnm.streamlit.app/?embed=true"
 OG_TITLE = "Albion Roulette | Build Randomizer & Challenge Generator"
 OG_DESCRIPTION = (
     "Level 1 MVP: Streamer-ready build chaos for Albion Online. Generate "
@@ -416,6 +416,17 @@ OBSIDIAN_CSS = """
         color: #e8eaf0;
     }
     #MainMenu, footer, header {visibility: hidden;}
+    [data-testid="stToolbar"],
+    [data-testid="stDecoration"],
+    [data-testid="stStatusWidget"],
+    [data-testid="stHeader"],
+    [data-testid="stAppDeployButton"],
+    .stDeployButton,
+    .stAppDeployButton {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+    }
     .block-container {padding-top: 1.2rem;}
 
     /* ---- Header banner ---- */
