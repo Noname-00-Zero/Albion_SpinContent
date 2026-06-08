@@ -1,4 +1,4 @@
-# ⚔️ Albion Master — Streamer Build Roulette & Challenge Generator
+# ⚔️ Albion Roulette — Streamer Build Roulette & Challenge Generator
 
 A lightweight, zero-cost Streamlit web app that generates random Albion Online
 loadouts + high-stakes challenges for streamers and gamers. Built to be
