@@ -37,7 +37,7 @@ OG_DESCRIPTION = (
 # Public image for link previews (Discord / Reddit / Twitter).
 OG_IMAGE = (
     "https://raw.githubusercontent.com/Noname-00-Zero/Albion_SpinContent/"
-    "main/og.png"
+    "main/og.png?v=roulette"
 )
 CARD_IMG_SIZE = 96                                        # cards display at 92px — 96 is enough
 SPIN_IMG_SIZE = 72                                        # small icons for the spin animation only
